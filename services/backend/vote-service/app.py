@@ -77,6 +77,44 @@ def get_votes(submission_id):
     return jsonify({'submission_id': submission_id, **counts}), 200
 
 
+@app.route('/report/<submission_id>', methods=['POST'])
+def report(submission_id):
+    data    = request.get_json(silent=True) or {}
+    user_id = request.headers.get('X-User-Id', '')
+    reason  = data.get('reason', '').strip()
+
+    if not user_id:
+        return jsonify({'error': 'Authentication required'}), 401
+
+    valid_reasons = ['fake', 'duplicate', 'inappropriate', 'other']
+    if reason not in valid_reasons:
+        return jsonify({'error': f'reason must be one of: {", ".join(valid_reasons)}'}), 400
+
+    sub = query_one(
+        'SELECT id FROM salary.submissions WHERE id = %s', (submission_id,))
+    if not sub:
+        return jsonify({'error': 'Submission not found'}), 404
+
+    existing = query_one(
+        'SELECT id FROM community.reports WHERE submission_id=%s AND user_id=%s',
+        (submission_id, user_id))
+    if existing:
+        return jsonify({'error': 'You have already reported this submission'}), 409
+
+    execute(
+        '''INSERT INTO community.reports
+           (id, submission_id, user_id, reason, comment)
+           VALUES (%s, %s, %s, %s, %s)''',
+        (str(uuid.uuid4()), submission_id, user_id,
+         reason, data.get('comment', ''))
+    )
+    return jsonify({
+        'message': 'Submission reported successfully',
+        'submission_id': submission_id,
+        'reason': reason,
+    }), 201
+
+
 @app.route('/health')
 def health():
     return jsonify({'status': 'ok', 'service': 'vote',

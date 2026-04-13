@@ -66,3 +66,17 @@ CREATE INDEX IF NOT EXISTS idx_submissions_role     ON salary.submissions(role);
 CREATE INDEX IF NOT EXISTS idx_submissions_company  ON salary.submissions(company);
 CREATE INDEX IF NOT EXISTS idx_submissions_location ON salary.submissions(location);
 CREATE INDEX IF NOT EXISTS idx_votes_submission     ON community.votes(submission_id);
+
+
+
+CREATE TABLE IF NOT EXISTS community.reports (
+    id            UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+    submission_id UUID        NOT NULL REFERENCES salary.submissions(id) ON DELETE CASCADE,
+    user_id       UUID        NOT NULL REFERENCES identity.users(id)     ON DELETE CASCADE,
+    reason        VARCHAR(50) NOT NULL CHECK (reason IN ('fake','duplicate','inappropriate','other')),
+    comment       TEXT,
+    created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE (submission_id, user_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_reports_submission ON community.reports(submission_id);

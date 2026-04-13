@@ -117,6 +117,22 @@ def vote_counts(submission_id):
         return _proxy_error('vote', e)
 
 
+@app.route('/api/report/<submission_id>', methods=['POST'])
+def report_salary(submission_id):
+    user_id, err_resp, code = _require_auth()
+    if err_resp:
+        return err_resp, code
+    try:
+        r = req.post(
+            f'{VOTE_URL}/report/{submission_id}',
+            json=request.get_json(silent=True),
+            headers={'X-User-Id': user_id},
+            timeout=TIMEOUT,
+        )
+        return jsonify(r.json()), r.status_code
+    except Exception as e:
+        return _proxy_error('vote', e)
+
 # ═══════════════════════════════════════════════════════════════════
 # SEARCH ROUTES  →  search-service  (public)
 # ═══════════════════════════════════════════════════════════════════

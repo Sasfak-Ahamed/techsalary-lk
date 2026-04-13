@@ -13,10 +13,14 @@ function fmt(n, cur = 'LKR') {
 }
 
 function PendingCard({ salary, token, onVoted }) {
-  const [voting, setVoting]  = useState(false)
-  const [voted, setVoted]    = useState(null)
-  const [error, setError]    = useState(null)
-  const [counts, setCounts]  = useState({
+  const [voting,      setVoting]    = useState(false)
+  const [voted,       setVoted]     = useState(null)
+  const [error,       setError]     = useState(null)
+  const [reported,    setReported]  = useState(false)
+  const [reporting,   setReporting] = useState(false)
+  const [reportError, setReportError] = useState(null)
+  const [showReport,  setShowReport] = useState(false)
+  const [counts, setCounts] = useState({
     upvotes:   salary.upvotes   || 0,
     downvotes: salary.downvotes || 0,
   })
@@ -24,7 +28,8 @@ function PendingCard({ salary, token, onVoted }) {
   const handleVote = async (type) => {
     if (!token) { window.location.href = '/login'; return }
     if (voted) return
-    setVoting(true); setError(null)
+    setVoting(true)
+    setError(null)
     try {
       const res = await fetch(`${BFF}/api/vote/${salary.id}`, {
         method: 'POST',
@@ -48,8 +53,34 @@ function PendingCard({ salary, token, onVoted }) {
     }
   }
 
+  const handleReport = async (reason) => {
+    if (!token) { window.location.href = '/login'; return }
+    setReporting(true)
+    setReportError(null)
+    try {
+      const res = await fetch(`${BFF}/api/report/${salary.id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ reason }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Report failed')
+      setReported(true)
+      setShowReport(false)
+    } catch (e) {
+      setReportError(e.message)
+    } finally {
+      setReporting(false)
+    }
+  }
+
   return (
     <div className="card border-l-4 border-l-yellow-400">
+
+      {/* Card header */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
@@ -65,7 +96,9 @@ function PendingCard({ salary, token, onVoted }) {
             {!salary.anonymize && salary.company && <span>{salary.company}</span>}
             {salary.location && <span>{salary.location}</span>}
             {salary.years_of_experience !== undefined && (
-              <span>{salary.years_of_experience} yr{salary.years_of_experience !== 1 ? 's' : ''} exp</span>
+              <span>
+                {salary.years_of_experience} yr{salary.years_of_experience !== 1 ? 's' : ''} exp
+              </span>
             )}
           </div>
           {salary.tech_stack && (
@@ -80,6 +113,7 @@ function PendingCard({ salary, token, onVoted }) {
         </div>
       </div>
 
+      {/* Progress bar */}
       <div className="mt-3">
         <div className="flex justify-between text-xs text-gray-500 mb-1">
           <span>Approval progress</span>
@@ -93,14 +127,19 @@ function PendingCard({ salary, token, onVoted }) {
         </div>
       </div>
 
+      {/* Action buttons */}
       <div className="mt-3 pt-3 border-t border-gray-100 flex items-center gap-3 flex-wrap">
+
+        {/* Upvote */}
         <button
           onClick={() => handleVote('up')}
           disabled={voting || !!voted}
-          className={"flex items-center gap-1.5 text-sm px-4 py-1.5 rounded-lg border transition-colors disabled:opacity-50 " +
+          className={
+            'flex items-center gap-1.5 text-sm px-4 py-1.5 rounded-lg border transition-colors disabled:opacity-50 ' +
             (voted === 'up'
               ? 'bg-green-50 border-green-300 text-green-700'
-              : 'border-gray-200 text-gray-600 hover:border-green-300 hover:text-green-600 hover:bg-green-50')}
+              : 'border-gray-200 text-gray-600 hover:border-green-300 hover:text-green-600 hover:bg-green-50')
+          }
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
@@ -108,13 +147,16 @@ function PendingCard({ salary, token, onVoted }) {
           Looks legit ({counts.upvotes})
         </button>
 
+        {/* Downvote */}
         <button
           onClick={() => handleVote('down')}
           disabled={voting || !!voted}
-          className={"flex items-center gap-1.5 text-sm px-4 py-1.5 rounded-lg border transition-colors disabled:opacity-50 " +
+          className={
+            'flex items-center gap-1.5 text-sm px-4 py-1.5 rounded-lg border transition-colors disabled:opacity-50 ' +
             (voted === 'down'
               ? 'bg-red-50 border-red-300 text-red-700'
-              : 'border-gray-200 text-gray-600 hover:border-red-300 hover:text-red-600 hover:bg-red-50')}
+              : 'border-gray-200 text-gray-600 hover:border-red-300 hover:text-red-600 hover:bg-red-50')
+          }
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -122,12 +164,66 @@ function PendingCard({ salary, token, onVoted }) {
           Seems off ({counts.downvotes})
         </button>
 
+        {/* Vote confirmation */}
         {voted && (
           <span className="text-xs text-green-600 font-medium">
             {voted === 'up' ? '✓ Upvote recorded!' : '✓ Downvote recorded!'}
           </span>
         )}
         {error && <span className="text-xs text-red-500">{error}</span>}
+
+        {/* Report section — pinned to right */}
+        <div className="ml-auto relative">
+          {reported ? (
+            <span className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-orange-200 bg-orange-50 text-orange-600">
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              Reported
+            </span>
+          ) : (
+            <button
+              onClick={() => setShowReport(p => !p)}
+              className="flex items-center gap-1.5 text-sm font-medium px-4 py-1.5 rounded-lg border border-red-300 bg-red-50 text-red-600 hover:bg-red-100 hover:border-red-400 transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+              </svg>
+              Report
+            </button>
+          )}
+
+          {/* Dropdown menu */}
+          {showReport && !reported && (
+            <div className="absolute right-0 bottom-10 bg-white border border-gray-200 rounded-xl shadow-lg p-3 z-10 w-52">
+              <p className="text-xs font-semibold text-gray-700 mb-2 px-1">
+                Why are you reporting?
+              </p>
+              {['fake', 'duplicate', 'inappropriate', 'other'].map(reason => (
+                <button
+                  key={reason}
+                  onClick={() => handleReport(reason)}
+                  disabled={reporting}
+                  className="flex items-center gap-2 w-full text-left text-sm px-3 py-2 rounded-lg hover:bg-red-50 hover:text-red-600 text-gray-600 capitalize disabled:opacity-50 transition-colors"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-red-400 shrink-0" />
+                  {reason}
+                </button>
+              ))}
+              {reportError && (
+                <p className="text-xs text-red-500 mt-2 px-1">{reportError}</p>
+              )}
+              <button
+                onClick={() => setShowReport(false)}
+                className="mt-2 w-full text-xs text-gray-400 hover:text-gray-600 text-center py-1 border-t border-gray-100 pt-2"
+              >
+                Cancel
+              </button>
+            </div>
+          )}
+        </div>
+
       </div>
     </div>
   )
@@ -147,9 +243,10 @@ export default function PendingPage() {
   }, [router])
 
   const loadPending = useCallback(async () => {
-    setLoading(true); setError(null)
+    setLoading(true)
+    setError(null)
     try {
-      const res  = await fetch(`${BFF}/api/pending`, {
+      const res = await fetch(`${BFF}/api/pending`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       })
       const data = await res.json()
@@ -206,7 +303,9 @@ export default function PendingPage() {
         <div className="text-center py-16 card text-gray-500">
           <p className="font-medium text-lg">No pending salaries right now</p>
           <p className="text-sm mt-1">All submissions have been reviewed!</p>
-          <a href="/" className="btn-primary text-sm mt-4 inline-block">Browse Approved Salaries</a>
+          <a href="/" className="btn-primary text-sm mt-4 inline-block">
+            Browse Approved Salaries
+          </a>
         </div>
       ) : (
         <>
