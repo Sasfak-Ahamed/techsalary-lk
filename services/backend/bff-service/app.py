@@ -7,18 +7,13 @@ from dotenv import load_dotenv
 load_dotenv()
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
-
-# ── Internal service URLs (K8s ClusterIP names / env overrides) ───────────────
 IDENTITY_URL = os.getenv('IDENTITY_SERVICE_URL', 'http://identity-service:5001')
 SALARY_URL   = os.getenv('SALARY_SERVICE_URL',   'http://salary-service:5002')
 VOTE_URL     = os.getenv('VOTE_SERVICE_URL',      'http://vote-service:5003')
 SEARCH_URL   = os.getenv('SEARCH_SERVICE_URL',    'http://search-service:5004')
 STATS_URL    = os.getenv('STATS_SERVICE_URL',     'http://stats-service:5005')
+TIMEOUT = 10
 
-TIMEOUT = 10  # seconds
-
-
-# ── Auth helper ───────────────────────────────────────────────────────────────
 def _verify_token(auth_header: str):
     """Calls identity-service /verify. Returns user_id or None."""
     if not auth_header or not auth_header.startswith('Bearer '):
@@ -42,10 +37,6 @@ def _require_auth():
 def _proxy_error(svc, e):
     return jsonify({'error': f'{svc} service unavailable', 'detail': str(e)}), 503
 
-
-# ═══════════════════════════════════════════════════════════════════
-# AUTH ROUTES  →  identity-service
-# ═══════════════════════════════════════════════════════════════════
 @app.route('/api/auth/register', methods=['POST'])
 def register():
     try:
@@ -65,10 +56,6 @@ def login():
     except Exception as e:
         return _proxy_error('identity', e)
 
-
-# ═══════════════════════════════════════════════════════════════════
-# SALARY ROUTES  →  salary-service  (no auth needed to submit)
-# ═══════════════════════════════════════════════════════════════════
 @app.route('/api/salary', methods=['POST'])
 def submit_salary():
     try:
@@ -87,10 +74,6 @@ def get_salary(sub_id):
     except Exception as e:
         return _proxy_error('salary', e)
 
-
-# ═══════════════════════════════════════════════════════════════════
-# VOTE ROUTES  →  vote-service  (auth REQUIRED)
-# ═══════════════════════════════════════════════════════════════════
 @app.route('/api/vote/<submission_id>', methods=['POST'])
 def cast_vote(submission_id):
     user_id, err_resp, code = _require_auth()
@@ -133,9 +116,6 @@ def report_salary(submission_id):
     except Exception as e:
         return _proxy_error('vote', e)
 
-# ═══════════════════════════════════════════════════════════════════
-# SEARCH ROUTES  →  search-service  (public)
-# ═══════════════════════════════════════════════════════════════════
 @app.route('/api/search', methods=['GET'])
 def search():
     try:
@@ -145,10 +125,6 @@ def search():
     except Exception as e:
         return _proxy_error('search', e)
 
-
-# ═══════════════════════════════════════════════════════════════════
-# STATS ROUTES  →  stats-service  (public)
-# ═══════════════════════════════════════════════════════════════════
 @app.route('/api/pending', methods=['GET'])
 def pending_salaries():
     user_id, err_resp, code = _require_auth()
@@ -170,10 +146,6 @@ def stats():
     except Exception as e:
         return _proxy_error('stats', e)
 
-
-# ═══════════════════════════════════════════════════════════════════
-# HEALTH
-# ═══════════════════════════════════════════════════════════════════
 @app.route('/health')
 def health():
     services = {

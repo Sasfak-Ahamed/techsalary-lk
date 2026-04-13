@@ -31,7 +31,6 @@ export default function HomePage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
-      {/* Hero */}
       <div className="text-center mb-10">
         <h1 className="text-3xl font-bold text-gray-900 mb-3">
           Sri Lanka Tech Salary Transparency
@@ -46,7 +45,6 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Stats bar */}
       <div className="grid grid-cols-3 gap-4 mb-8">
         <div className="card text-center">
           <p className="text-2xl font-bold text-brand-600">{total}</p>
@@ -62,10 +60,8 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Search */}
       <SearchBar onSearch={handleSearch} loading={loading} />
 
-      {/* Results */}
       <div className="mt-6">
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm mb-4">

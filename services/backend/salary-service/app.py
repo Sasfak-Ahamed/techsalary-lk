@@ -14,8 +14,6 @@ REQUIRED = ['role', 'level', 'location', 'salary_amount', 'years_of_experience']
 @app.route('/submit', methods=['POST'])
 def submit():
     data = request.get_json(silent=True) or {}
-
-    # Validation
     missing = [f for f in REQUIRED if not data.get(f) and data.get(f) != 0]
     if missing:
         return jsonify({'error': f'Missing fields: {", ".join(missing)}'}), 400

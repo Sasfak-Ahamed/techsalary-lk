@@ -31,8 +31,6 @@ def verify_token(token: str):
     except jwt.InvalidTokenError:
         return None
 
-
-# ── Register ──────────────────────────────────────────────────────────────────
 @app.route('/register', methods=['POST'])
 def register():
     data = request.get_json(silent=True) or {}
@@ -59,7 +57,6 @@ def register():
     return jsonify({'token': token, 'user_id': user_id}), 201
 
 
-# ── Login ─────────────────────────────────────────────────────────────────────
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json(silent=True) or {}
@@ -81,8 +78,6 @@ def login():
     token = make_token(str(user['id']))
     return jsonify({'token': token, 'user_id': str(user['id'])}), 200
 
-
-# ── Verify token (called by BFF) ──────────────────────────────────────────────
 @app.route('/verify', methods=['POST'])
 def verify():
     data  = request.get_json(silent=True) or {}
@@ -92,8 +87,6 @@ def verify():
         return jsonify({'valid': False, 'error': 'Invalid or expired token'}), 401
     return jsonify({'valid': True, 'user_id': payload['sub']}), 200
 
-
-# ── Health ────────────────────────────────────────────────────────────────────
 @app.route('/health')
 def health():
     return jsonify({'status': 'ok', 'service': 'identity'}), 200

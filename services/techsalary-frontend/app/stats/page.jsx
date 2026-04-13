@@ -53,8 +53,6 @@ export default function StatsPage() {
         <h1 className="text-2xl font-bold text-gray-900">Salary Statistics</h1>
         <p className="text-gray-500 text-sm mt-1">Aggregated from approved community submissions.</p>
       </div>
-
-      {/* Filters */}
       <div className="card mb-6">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <select value={role} onChange={e => setRole(e.target.value)} className="input-field">
@@ -83,7 +81,6 @@ export default function StatsPage() {
 
       {!loading && stats && (
         <>
-          {/* Key metrics */}
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 mb-8">
             <StatCard label="Total entries"  value={stats.count        ?? '—'} />
             <StatCard label="Average salary" value={fmt(stats.average, stats.currency)} sub="per month" />
@@ -91,7 +88,6 @@ export default function StatsPage() {
             <StatCard label="Top 25%"        value={fmt(stats.p75,     stats.currency)} sub="per month" />
           </div>
 
-          {/* Range bar */}
           {stats.min != null && stats.max != null && (
             <div className="card mb-8">
               <h2 className="text-sm font-semibold text-gray-700 mb-4">Salary range</h2>
@@ -108,7 +104,6 @@ export default function StatsPage() {
             </div>
           )}
 
-          {/* By role breakdown */}
           {stats.by_role && stats.by_role.length > 0 && (
             <div className="card">
               <h2 className="text-sm font-semibold text-gray-700 mb-4">Average by role</h2>

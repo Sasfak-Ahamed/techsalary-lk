@@ -1,15 +1,6 @@
--- ─────────────────────────────────────────────
--- TechSalary LK  ·  PostgreSQL schema bootstrap
--- ─────────────────────────────────────────────
-
--- SCHEMAS
 CREATE SCHEMA IF NOT EXISTS identity;
 CREATE SCHEMA IF NOT EXISTS salary;
 CREATE SCHEMA IF NOT EXISTS community;
-
--- ─────────────────────────────────────────────
--- IDENTITY SCHEMA
--- ─────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS identity.users (
     id         UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
     email      VARCHAR(255) UNIQUE NOT NULL,
@@ -26,9 +17,7 @@ CREATE TABLE IF NOT EXISTS identity.tokens (
     expires_at TIMESTAMPTZ NOT NULL
 );
 
--- ─────────────────────────────────────────────
--- SALARY SCHEMA
--- ─────────────────────────────────────────────
+
 CREATE TABLE IF NOT EXISTS salary.submissions (
     id                   UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
     role                 VARCHAR(120) NOT NULL,
@@ -61,9 +50,6 @@ CREATE TABLE IF NOT EXISTS salary.aggregates (
     calculated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- ─────────────────────────────────────────────
--- COMMUNITY SCHEMA
--- ─────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS community.votes (
     id            UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
     submission_id UUID        NOT NULL REFERENCES salary.submissions(id) ON DELETE CASCADE,
@@ -73,9 +59,6 @@ CREATE TABLE IF NOT EXISTS community.votes (
     UNIQUE (submission_id, user_id)
 );
 
--- ─────────────────────────────────────────────
--- INDEXES
--- ─────────────────────────────────────────────
 CREATE INDEX IF NOT EXISTS idx_submissions_status   ON salary.submissions(status);
 CREATE INDEX IF NOT EXISTS idx_submissions_role     ON salary.submissions(role);
 CREATE INDEX IF NOT EXISTS idx_submissions_company  ON salary.submissions(company);

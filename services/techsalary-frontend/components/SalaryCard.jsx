@@ -67,8 +67,6 @@ export default function SalaryCard({ salary }) {
 
   return (
     <div className="card hover:border-brand-200 transition-colors">
-
-      {/* Card header */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
@@ -100,11 +98,7 @@ export default function SalaryCard({ salary }) {
           <p className="text-xs text-gray-400">per month</p>
         </div>
       </div>
-
-      {/* Action row */}
       <div className="mt-3 pt-3 border-t border-gray-100 flex items-center gap-3 flex-wrap">
-
-        {/* Upvote */}
         <button
           onClick={() => handleVote('up')}
           className={
@@ -119,8 +113,6 @@ export default function SalaryCard({ salary }) {
           </svg>
           {upvotes}
         </button>
-
-        {/* Downvote */}
         <button
           onClick={() => handleVote('down')}
           className={
@@ -135,12 +127,8 @@ export default function SalaryCard({ salary }) {
           </svg>
           {downvotes}
         </button>
-
-        {/* Vote feedback */}
         {voted && <span className="text-xs text-gray-400">Thanks for voting!</span>}
         {voteError && <span className="text-xs text-red-500">{voteError}</span>}
-
-        {/* Report section — pinned to right */}
         <div className="ml-auto relative">
           {reported ? (
             <span className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-orange-200 bg-orange-50 text-orange-600">
@@ -162,7 +150,6 @@ export default function SalaryCard({ salary }) {
             </button>
           )}
 
-          {/* Dropdown */}
           {showReport && !reported && (
             <div className="absolute right-0 bottom-10 bg-white border border-gray-200 rounded-xl shadow-lg p-3 z-10 w-52">
               <p className="text-xs font-semibold text-gray-700 mb-2 px-1">

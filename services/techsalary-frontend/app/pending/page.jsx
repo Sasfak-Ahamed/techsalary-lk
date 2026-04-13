@@ -79,8 +79,6 @@ function PendingCard({ salary, token, onVoted }) {
 
   return (
     <div className="card border-l-4 border-l-yellow-400">
-
-      {/* Card header */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
@@ -112,8 +110,6 @@ function PendingCard({ salary, token, onVoted }) {
           <p className="text-xs text-gray-400">per month</p>
         </div>
       </div>
-
-      {/* Progress bar */}
       <div className="mt-3">
         <div className="flex justify-between text-xs text-gray-500 mb-1">
           <span>Approval progress</span>
@@ -126,11 +122,7 @@ function PendingCard({ salary, token, onVoted }) {
           />
         </div>
       </div>
-
-      {/* Action buttons */}
       <div className="mt-3 pt-3 border-t border-gray-100 flex items-center gap-3 flex-wrap">
-
-        {/* Upvote */}
         <button
           onClick={() => handleVote('up')}
           disabled={voting || !!voted}
@@ -146,8 +138,6 @@ function PendingCard({ salary, token, onVoted }) {
           </svg>
           Looks legit ({counts.upvotes})
         </button>
-
-        {/* Downvote */}
         <button
           onClick={() => handleVote('down')}
           disabled={voting || !!voted}
@@ -163,16 +153,12 @@ function PendingCard({ salary, token, onVoted }) {
           </svg>
           Seems off ({counts.downvotes})
         </button>
-
-        {/* Vote confirmation */}
         {voted && (
           <span className="text-xs text-green-600 font-medium">
             {voted === 'up' ? '✓ Upvote recorded!' : '✓ Downvote recorded!'}
           </span>
         )}
         {error && <span className="text-xs text-red-500">{error}</span>}
-
-        {/* Report section — pinned to right */}
         <div className="ml-auto relative">
           {reported ? (
             <span className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-orange-200 bg-orange-50 text-orange-600">
@@ -194,7 +180,6 @@ function PendingCard({ salary, token, onVoted }) {
             </button>
           )}
 
-          {/* Dropdown menu */}
           {showReport && !reported && (
             <div className="absolute right-0 bottom-10 bg-white border border-gray-200 rounded-xl shadow-lg p-3 z-10 w-52">
               <p className="text-xs font-semibold text-gray-700 mb-2 px-1">

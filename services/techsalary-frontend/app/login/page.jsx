@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 
 export default function LoginPage() {
   const router = useRouter()
-  const [mode, setMode]         = useState('login')   // 'login' | 'signup'
+  const [mode, setMode]         = useState('login')
   const [form, setForm]         = useState({ email: '', password: '', confirm: '' })
   const [loading, setLoading]   = useState(false)
   const [error, setError]       = useState(null)
@@ -52,7 +52,6 @@ export default function LoginPage() {
   return (
     <div className="min-h-[calc(100vh-120px)] flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-sm">
-        {/* Tabs */}
         <div className="flex rounded-xl overflow-hidden border border-gray-200 mb-6">
           {['login','signup'].map(m => (
             <button key={m} onClick={() => { setMode(m); setError(null); setFE({}) }}
