@@ -46,6 +46,21 @@ CREATE TABLE IF NOT EXISTS salary.submissions (
     approved_at          TIMESTAMPTZ
 );
 
+CREATE TABLE IF NOT EXISTS salary.aggregates (
+    id           UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+    role         VARCHAR(120),
+    location     VARCHAR(120),
+    currency     VARCHAR(10)  NOT NULL DEFAULT 'LKR',
+    avg_salary   NUMERIC(14,2),
+    median_salary NUMERIC(14,2),
+    min_salary   NUMERIC(14,2),
+    max_salary   NUMERIC(14,2),
+    p25_salary   NUMERIC(14,2),
+    p75_salary   NUMERIC(14,2),
+    sample_count INTEGER,
+    calculated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 -- ─────────────────────────────────────────────
 -- COMMUNITY SCHEMA
 -- ─────────────────────────────────────────────
